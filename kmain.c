@@ -1,31 +1,22 @@
-#include "drivers/serial_port/serial.c"
-#include "memory/segmentation/memory_segments.h"
-#include "drivers/interrupts/interrupts.h"
-#include "multiboot.h"
-#include "utils/type.h"
-#include "memory/paging/paging.h"
+#include "drivers/frame_buffer.c"
+#include "drivers/serial_port.c"
+#include "segmentation/memory_segments.h"
 
 /* Function to initialize */
- void init(u32int kernelPhysicalStart, u32int kernelPhysicalEnd) {
+void init() {
   /* Initialize segment descriptor tables */
   init_gdt();
 
-  /* Configure serial port */
+  /* Initialize serial port */
   serial_configure(SERIAL_COM1_BASE, Baud_115200);
-  
-  /* Initialize paging */
-  init_paging(kernelPhysicalStart, kernelPhysicalEnd);
-  
-  /* Initialize idt */
-  interrupts_install_idt();
-  
 }
 
 /* Kernel Main */
- s32int kmain(u32int kernelPhysicalStart, u32int kernelPhysicalEnd) {
+void kmain(){
+    	init();
+	char buffer[] = "Welcome to pocketOS!";
 	
-    	// Initialize all modules
-   	init(kernelPhysicalStart, kernelPhysicalEnd);
-  	 
-  	return 0;
+	fb_write(buffer,sizeof(buffer));
+	serial_write(SERIAL_COM1_BASE, buffer, sizeof(buffer));
+  	
 }
